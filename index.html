@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IELTS Writing Practice</title>
+  <style>
+    :root{
+      --red:#e91533;
+      --active-line:#111;
+      --check-bg:#111;
+      --check-fg:#fff;
+      --text:#111;
+      --muted:#666;
+      --line:#d4d4d4;
+      --panel:#fff;
+      --soft:#f4f4f1;
+      --button:#111;
+      --button2:#4e4e4e;
+      --font-size:16px;
+      --page-pad:18px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      color:var(--text);
+      background:#fff;
+      font-size:var(--font-size);
+      overflow:hidden;
+    }
+    button,textarea{font:inherit}
+    button{cursor:pointer}
+
+    .app{
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    header{
+      height:70px;
+      flex:0 0 70px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 16px;
+      border-bottom:1px solid var(--line);
+      background:#fff;
+    }
+
+    .brand{
+      color:var(--red);
+      font-size:37px;
+      font-weight:700;
+      letter-spacing:-1.8px;
+      line-height:1;
+    }
+
+    .header-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .header-left{
+      display:flex;
+      align-items:center;
+      gap:18px;
+    }
+    .icon-btn{
+      width:46px;height:46px;
+      border:0;background:transparent;
+      display:grid;place-items:center;
+      border-radius:6px;
+      font-size:26px;
+    }
+    .icon-btn:hover{background:#f3f3f3}
+
+    .timerbar{
+      min-height:58px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:14px;
+      border-bottom:1px solid #ececec;
+      padding:8px 14px;
+      background:#fff;
+    }
+    .timer{
+      min-width:120px;
+      text-align:center;
+      font-size:24px;
+      font-variant-numeric:tabular-nums;
+      letter-spacing:.4px;
+    }
+    .timer-btn{
+      border:1px solid #222;
+      background:#111;
+      color:#fff;
+      padding:8px 16px;
+      border-radius:4px;
+      font-weight:600;
+    }
+    .timer-btn.active{
+      background:#fff;
+      color:#111;
+    }
+
+    main{
+      flex:1;
+      min-height:0;
+      overflow:auto;
+      padding:16px 18px 110px;
+    }
+
+    .task-card{
+      background:var(--soft);
+      border:1px solid #d8d8d8;
+      border-radius:4px;
+      padding:16px 18px;
+      margin-bottom:72px;
+    }
+    .part{
+      font-weight:700;
+      font-size:18px;
+      margin-bottom:8px;
+    }
+    .instruction{
+      margin:0;
+      font-size:18px;
+      line-height:1.45;
+    }
+
+    .editor-wrap{
+      width:min(84%, 1520px);
+      margin:0 auto;
+    }
+    textarea{
+      width:100%;
+      height:auto;
+      min-height:390px;
+      resize:none;
+      overflow:hidden;
+      border:1px solid #222;
+      border-radius:2px;
+      padding:16px 18px;
+      line-height:1.6;
+      font-size:18px;
+      outline:none;
+      background:#fff;
+      color:#111;
+      box-shadow:none;
+    }
+    textarea:focus{
+      border-color:#111;
+      box-shadow:0 0 0 2px rgba(0,0,0,.08);
+    }
+
+    .word-count{
+      text-align:right;
+      margin-top:10px;
+      font-size:17px;
+    }
+
+    .export-menu{
+      position:absolute;
+      right:0;
+      bottom:62px;
+      width:220px;
+      background:#fff;
+      border:1px solid #ccc;
+      border-radius:4px;
+      box-shadow:0 8px 24px rgba(0,0,0,.14);
+      display:none;
+      overflow:hidden;
+    }
+    .export-menu.open{display:block}
+    .export-item{
+      width:100%;
+      padding:14px 16px;
+      border:0;
+      background:#fff;
+      text-align:left;
+      font-size:16px;
+    }
+    .export-item:hover{background:#f5f5f5}
+
+    /* Full-screen options screens, matching the references */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:#fff;
+      z-index:100;
+      display:none;
+    }
+    .overlay.show{display:block}
+
+    .overlay-header{
+      height:74px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      font-size:32px;
+    }
+    .overlay-title{font-weight:400}
+    .close{
+      position:absolute;
+      right:18px;
+      top:12px;
+      border:0;
+      background:transparent;
+      font-size:34px;
+      line-height:1;
+      padding:8px;
+    }
+
+    .back{
+      position:absolute;
+      left:10px;
+      top:9px;
+      border:0;
+      background:transparent;
+      font-size:31px;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      padding:8px;
+    }
+
+    .options-list{
+      width:min(880px, 94vw);
+      margin:26px auto 0;
+      border:1px solid #cfcfcf;
+      border-radius:5px;
+      overflow:hidden;
+    }
+
+    .option-row{
+      min-height:95px;
+      display:flex;
+      align-items:center;
+      gap:28px;
+      padding:0 44px;
+      border-bottom:1px solid #cfcfcf;
+      font-size:24px;
+      background:#fff;
+    }
+    .option-row:last-child{border-bottom:0}
+    .option-row.action{cursor:pointer}
+    .option-row.action:hover{background:#fafafa}
+
+    .primary-row{
+      background:var(--red);
+      color:#fff;
+      border-bottom:0;
+      min-height:95px;
+      margin-bottom:20px;
+    }
+    .row-icon{width:36px;text-align:center;font-size:28px}
+    .chevron{margin-left:auto;font-size:33px}
+    .sublist .option-row{min-height:92px}
+
+    .contrast-preview{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .contrast-high{
+      --bg:#111;
+      --fg:#fff;
+    }
+
+    @media (max-width: 800px){
+      .brand{font-size:31px}
+      .timerbar{justify-content:flex-start}
+      .editor-wrap{width:100%}
+      .task-card{margin-bottom:24px}
+      textarea{min-height:300px;font-size:16px}
+      .instruction,.part{font-size:16px}
+      .option-row{padding:0 20px;font-size:20px}
+    }
+
+    /* Print/PDF: 14px body text and preserved paragraph spacing */
+    @media print{
+      @page{margin:16mm}
+      body{overflow:visible;background:#fff}
+      header,.timerbar,.bottom-bar,.task-card{display:none !important}
+      main{padding:0;overflow:visible}
+      .editor-wrap{width:100%;margin:0}
+      textarea{
+        display:none !important;
+      }
+      .print-copy{
+        display:block !important;
+        font-family:Arial, Helvetica, sans-serif;
+        font-size:14px;
+        line-height:1.6;
+        white-space:pre-wrap;
+        color:#111;
+      }
+      .print-copy p{
+        margin:0 0 12px;
+      }
+    }
+    .print-copy{display:none}
+
+/* v2 refinements */
+header{justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:18px}
+.header-actions{display:flex;align-items:center;gap:12px}
+.header-left .stopwatch{display:flex;align-items:center;gap:8px}
+.header-left .timer{min-width:110px;font-size:20px;font-variant-numeric:tabular-nums}
+.header-left .timer-btn{height:36px;padding:0 14px}
+.save-status{font-size:12px;color:#666;min-width:55px;text-align:left}
+.bottom-bar{
+  position:fixed;left:0;right:0;bottom:0;height:74px;display:flex;align-items:stretch;
+  background:#fff;border-top:1px solid #ddd;z-index:30;
+}
+.bottom-tabs{display:flex;min-width:0;flex:1;height:100%}
+.bottom-tabs .tab{
+  flex:1 1 0;
+  min-width:0;
+  max-width:none;
+  width:50%;
+  border:0;background:#fff;color:#111;
+  text-align:left;padding:0 22px;font-size:18px;position:relative;
+}
+.bottom-tabs .tab.active{font-weight:700}
+.bottom-tabs .tab.active:before{
+  content:"";position:absolute;left:0;right:0;top:-1px;height:3px;background:var(--active-line);
+}
+.bottom-tabs .tab.completed:before{background:#249a19}
+.bottom-tabs .tab .done-mark{display:none;color:#249a19;font-weight:700;margin-right:10px;font-size:23px}
+.bottom-tabs .tab.completed .done-mark{display:inline}
+.bottom-action{width:92px;height:100%;flex:0 0 92px;display:flex;align-items:stretch;justify-content:stretch}
+.check-export{position:relative;width:100%;height:100%}
+.check-btn{
+  width:100%;height:100%;border:0;border-radius:0;color:var(--check-fg);background:var(--check-bg);
+  font-size:30px;display:grid;place-items:center;
+}
+.check-btn:hover{filter:brightness(.9)}
+.export-menu.check-menu{right:0;bottom:74px;width:230px}
+.export-scope-title{padding:12px 16px 8px;font-size:13px;font-weight:700;letter-spacing:.3px;opacity:.75;text-transform:uppercase}
+.export-divider{height:1px;background:#ddd;margin:4px 0}
+.scope-item{font-weight:600}
+.scope-item.selected{background:#eee;color:#111}
+body.theme-whiteblack .export-divider{background:#555}
+body.theme-whiteblack .scope-item.selected{background:#333;color:#fff}
+body.theme-yellowblack .export-divider{background:#6c6500}
+body.theme-yellowblack .scope-item.selected{background:#211f00;color:#ffea00}
+body.theme-whiteblack .bottom-bar,body.theme-whiteblack .bottom-tabs,body.theme-whiteblack .bottom-tabs .tab{background:#000;color:#fff;border-color:#555}
+body.theme-yellowblack .bottom-bar,body.theme-yellowblack .bottom-tabs,body.theme-yellowblack .bottom-tabs .tab{background:#000;color:#ffea00;border-color:#6c6500}
+
+/* v11 export UI: match the compact scope selector from the reference image. */
+.export-menu.check-menu{width:304px;padding:0 0 8px;background:#fff;border:1px solid #ccc;border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,.14);overflow:hidden}
+.export-scope-title{padding:12px 14px 8px;font-size:13px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;opacity:.7}
+.scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 8px 10px}
+.scope-item{appearance:none;border:1px solid #d1d1d1;border-radius:3px;padding:10px 8px;background:#fff;color:#111;font:600 15px Arial,sans-serif;text-align:center;cursor:pointer}
+.scope-item:hover{background:#f4f4f4;color:#111}
+.scope-item.selected{background:#111;color:#fff;border-color:#111}
+.export-item{padding:11px 14px}
+body.theme-whiteblack .export-menu{background:#000;border-color:#555}
+body.theme-whiteblack .scope-item{background:#000;color:#fff;border-color:#777}
+body.theme-whiteblack .scope-item:hover{background:#222;color:#fff}
+body.theme-whiteblack .scope-item.selected{background:#fff;color:#000;border-color:#fff}
+body.theme-whiteblack .export-divider{background:#555}
+body.theme-yellowblack .export-menu{background:#000;border-color:#6c6500}
+body.theme-yellowblack .scope-item{background:#000;color:#ffea00;border-color:#6c6500}
+body.theme-yellowblack .scope-item:hover{background:#211f00;color:#ffea00}
+body.theme-yellowblack .scope-item.selected{background:#ffea00;color:#000;border-color:#ffea00}
+body.theme-yellowblack .export-divider{background:#6c6500}
+@media print{header,.timerbar,.bottom-bar,.task-card{display:none!important}}
+
+body.theme-whiteblack{--text:#fff;--soft:#101010;--line:#555;--active-line:#fff;--check-bg:#fff;--check-fg:#000;background:#000;color:#fff}
+body.theme-whiteblack .app,body.theme-whiteblack header,body.theme-whiteblack main,body.theme-whiteblack .top-tabs,body.theme-whiteblack .tab,body.theme-whiteblack .overlay{background:#000;color:#fff}
+body.theme-whiteblack textarea{background:#000;color:#fff;border-color:#fff}
+body.theme-whiteblack .task-card,body.theme-whiteblack .option-row{background:#101010;color:#fff;border-color:#555}
+body.theme-whiteblack .export-menu{background:#000;border-color:#555}.theme-whiteblack .export-item{color:#fff}
+body.theme-whiteblack .timer-btn{background:#fff;color:#000;border-color:#fff}
+body.theme-whiteblack .timer-btn.active,body.theme-whiteblack .export-btn{background:#000;color:#fff}
+body.theme-whiteblack .check-btn:not(.completed){background:var(--check-bg);color:var(--check-fg)}
+body.theme-whiteblack .primary-row{background:#fff;color:#000}
+body.theme-whiteblack .close,body.theme-whiteblack .back{color:#fff}
+
+body.theme-yellowblack{--text:#ffea00;--soft:#090900;--line:#6c6500;--active-line:#ffea00;--check-bg:#ffea00;--check-fg:#000;background:#000;color:#ffea00}
+body.theme-yellowblack .app,body.theme-yellowblack header,body.theme-yellowblack main,body.theme-yellowblack .top-tabs,body.theme-yellowblack .tab,body.theme-yellowblack .overlay{background:#000;color:#ffea00}
+body.theme-yellowblack textarea{background:#000;color:#ffea00;border-color:#ffea00}
+body.theme-yellowblack .task-card,body.theme-yellowblack .option-row{background:#090900;color:#ffea00;border-color:#6c6500}
+body.theme-yellowblack .export-menu{background:#000;border-color:#6c6500}.theme-yellowblack .export-item{color:#ffea00}
+body.theme-yellowblack .timer-btn{background:#ffea00;color:#000;border-color:#ffea00}
+body.theme-yellowblack .timer-btn.active,body.theme-yellowblack .export-btn{background:#000;color:#ffea00}
+body.theme-yellowblack .check-btn:not(.completed){background:var(--check-bg);color:var(--check-fg)}
+body.theme-yellowblack .primary-row{background:#ffea00;color:#000}
+body.theme-yellowblack .close,body.theme-yellowblack .back{color:#ffea00}
+.selected .row-icon:after{content:"✓";font-weight:700}
+
+/* Global text-size scaling: affects the whole interface, including navigation, controls, editor, tabs and options. */
+body{--ui-scale:1}
+body.size-large{--ui-scale:1.18}
+body.size-xlarge{--ui-scale:1.38}
+body .brand{font-size:calc(37px * var(--ui-scale))}
+body .icon-btn{font-size:calc(26px * var(--ui-scale));width:calc(46px * var(--ui-scale));height:calc(46px * var(--ui-scale))}
+body .timer{font-size:calc(20px * var(--ui-scale))}
+body .timer-btn{font-size:calc(16px * var(--ui-scale));padding:calc(8px * var(--ui-scale)) calc(14px * var(--ui-scale));height:auto}
+body .save-status{font-size:calc(12px * var(--ui-scale))}
+body .task-card{font-size:calc(16px * var(--ui-scale))}
+body .part{font-size:calc(18px * var(--ui-scale))}
+body .instruction{font-size:calc(18px * var(--ui-scale))}
+body textarea{font-size:calc(18px * var(--ui-scale))}
+body .word-count{font-size:calc(17px * var(--ui-scale))}
+body .bottom-tabs .tab{font-size:calc(18px * var(--ui-scale))}
+body .check-btn{font-size:calc(30px * var(--ui-scale));width:100%;height:100%}
+body .export-item{font-size:calc(16px * var(--ui-scale))}
+body .overlay-header{font-size:calc(32px * var(--ui-scale))}
+body .close{font-size:calc(34px * var(--ui-scale))}
+body .back{font-size:calc(31px * var(--ui-scale))}
+body .option-row{font-size:calc(24px * var(--ui-scale))}
+body .row-icon{font-size:calc(28px * var(--ui-scale))}
+body .chevron{font-size:calc(33px * var(--ui-scale))}
+body .export-btn{font-size:calc(18px * var(--ui-scale))}
+body .bottom-tabs .tab{padding-left:calc(22px * var(--ui-scale));padding-right:calc(22px * var(--ui-scale))}
+body .options-list{font-size:calc(24px * var(--ui-scale))}
+
+/* Accessible contrast + menu icon styling */
+.icon-btn{
+  color:var(--text);
+  font-weight:900;
+  text-shadow:0 0 .01px currentColor;
+}
+.icon-btn:hover{background:rgba(0,0,0,.08);color:var(--text)}
+body.theme-whiteblack .icon-btn{color:#fff}
+body.theme-whiteblack .icon-btn:hover{background:#222;color:#fff}
+body.theme-yellowblack .icon-btn{color:#ffea00}
+body.theme-yellowblack .icon-btn:hover{background:#211f00;color:#ffea00}
+body.theme-whiteblack .option-row.action:hover{background:#1f1f1f;color:#fff}
+body.theme-yellowblack .option-row.action:hover{background:#211f00;color:#ffea00}
+body.theme-whiteblack .option-row.action:hover .row-icon,
+body.theme-whiteblack .option-row.action:hover .chevron{color:#fff}
+body.theme-yellowblack .option-row.action:hover .row-icon,
+body.theme-yellowblack .option-row.action:hover .chevron{color:#ffea00}
+body.theme-whiteblack .export-item:hover{background:#1f1f1f;color:#fff}
+body.theme-yellowblack .export-item:hover{background:#211f00;color:#ffea00}
+body.theme-whiteblack .timer-btn:hover{background:#1f1f1f;color:#fff}
+body.theme-yellowblack .timer-btn:hover{background:#211f00;color:#ffea00}
+
+
+/* Active tab line and check/export button follow the selected contrast. Completed parts stay green as a completion indicator. */
+body.theme-whiteblack .bottom-tabs .tab.active:not(.completed):before{background:#fff}
+body.theme-yellowblack .bottom-tabs .tab.active:not(.completed):before{background:#ffea00}
+.bottom-tabs .tab.active:not(.completed):before{background:var(--active-line)}
+.check-btn:not(.completed){background:var(--check-bg);color:var(--check-fg)}
+
+/* Completion state: a part is green once its minimum word count is reached. */
+.bottom-tabs .tab.completed:before{background:#249a19}
+.bottom-tabs .tab.completed{color:#111}
+body.theme-whiteblack .bottom-tabs .tab.completed,body.theme-yellowblack .bottom-tabs .tab.completed{color:inherit}
+.check-btn.completed{background:#249a19}
+
+@media (max-width:800px){
+  body .brand{font-size:calc(31px * var(--ui-scale))}
+  body .instruction,body .part{font-size:calc(16px * var(--ui-scale))}
+}
+  </style>
+</head>
+<body spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="none">
+<div class="app">
+  <header>
+    <div class="header-left">
+      <div class="brand">IELTS</div>
+      <div class="stopwatch" aria-label="Stopwatch">
+        <div class="timer" id="timer">00:00:00</div>
+        <button class="timer-btn" id="timerBtn">Start</button>
+        <div class="save-status" id="saveStatus">Saved</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" aria-label="Options" title="Options" id="optionsBtn">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="task-card">
+      <div class="part" id="taskPart">Part 2</div>
+      <p class="instruction" id="taskText"></p>
+    </section>
+
+    <section class="editor-wrap">
+      <textarea id="answer" spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="none" aria-label="Writing answer"></textarea>
+      <div id="printCopy" class="print-copy" aria-hidden="true"></div>
+      <div class="word-count">Words: <span id="wordCount">0</span></div>
+    </section>
+  </main>
+  <div class="bottom-bar">
+    <div class="bottom-tabs">
+      <button class="tab" data-part="1"><span class="done-mark">✓</span>Part 1</button>
+      <button class="tab active" data-part="2"><span class="done-mark">✓</span>Part 2</button>
+    </div>
+    <div class="bottom-action">
+      <div class="check-export">
+        <button class="check-btn" id="checkBtn" title="Check / Export" aria-label="Check / Export">✓</button>
+        <div class="export-menu check-menu" id="exportMenu">
+          <div class="export-scope-title">EXPORT</div>
+          <div class="scope-grid">
+            <button class="scope-item" data-scope="current">Current task</button>
+            <button class="scope-item" data-scope="both">Both tasks</button>
+          </div>
+          <div class="export-divider"></div>
+          <button class="export-item" data-export="pdf">PDF</button>
+          <button class="export-item" data-export="docx">Document (.docx)</button>
+          <button class="export-item" data-export="copy">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Options -->
+<div class="overlay" id="optionsOverlay">
+  <div class="overlay-header">
+    <div class="overlay-title">Options</div>
+    <button class="close" data-close="optionsOverlay" aria-label="Close">×</button>
+  </div>
+  <div class="options-list">
+    <div class="option-row action" data-screen="contrast">
+      <div class="row-icon">◐</div>
+      <div>Contrast</div>
+      <div class="chevron">›</div>
+    </div>
+    <div class="option-row action" data-screen="textsize">
+      <div class="row-icon">⌕</div>
+      <div>Text size</div>
+      <div class="chevron">›</div>
+    </div>
+    <div class="option-row action" id="resetOption">
+      <div class="row-icon">↺</div>
+      <div>Reset</div>
+      <div class="chevron">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- Text size -->
+<div class="overlay" id="textsizeOverlay">
+  <div class="overlay-header">
+    <button class="back" data-back="optionsOverlay">‹ <span>Options</span></button>
+    <div class="overlay-title">Text size</div>
+    <button class="close" data-close="textsizeOverlay" aria-label="Close">×</button>
+  </div>
+  <div class="options-list sublist">
+    <div class="option-row action" data-size="regular"><div class="row-icon"></div><div>Regular</div></div>
+    <div class="option-row action" data-size="large"><div class="row-icon"></div><div>Large</div></div>
+    <div class="option-row action" data-size="xlarge"><div class="row-icon"></div><div>Extra large</div></div>
+  </div>
+</div>
+
+<!-- Contrast -->
+<div class="overlay" id="contrastOverlay">
+  <div class="overlay-header">
+    <button class="back" data-back="optionsOverlay">‹ <span>Options</span></button>
+    <div class="overlay-title">Contrast</div>
+    <button class="close" data-close="contrastOverlay" aria-label="Close">×</button>
+  </div>
+  <div class="options-list sublist">
+    <div class="option-row action" data-contrast="normal"><div class="row-icon"></div><div>Black on white</div></div>
+    <div class="option-row action" data-contrast="whiteblack"><div class="row-icon"></div><div>White on black</div></div>
+    <div class="option-row action" data-contrast="yellowblack"><div class="row-icon"></div><div>Yellow on black</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const STORAGE='ielts-writing-draft-v3';
+  const answer=document.getElementById('answer');
+  const wordCount=document.getElementById('wordCount');
+  const timerEl=document.getElementById('timer');
+  const timerBtn=document.getElementById('timerBtn');
+  const saveStatus=document.getElementById('saveStatus');
+  const taskPart=document.getElementById('taskPart');
+  const taskText=document.getElementById('taskText');
+  const checkBtn=document.getElementById('checkBtn');
+  const exportMenu=document.getElementById('exportMenu');
+  const printCopy=document.getElementById('printCopy');
+  const thresholds={1:150,2:250};
+  const parts={
+    1:{label:'Part 1',instruction:'You should spend about 20 minutes on this task. Write at least 150 words.'},
+    2:{label:'Part 2',instruction:'You should spend about 40 minutes on this task. Write at least 250 words.'}
+  };
+  let state={activePart:1,drafts:{1:'',2:''},completed:{1:false,2:false},elapsed:0,running:false,lastTick:null,theme:'normal',size:'regular',exportScope:'current'};
+  let timerInterval=null;
+
+  const fmt=s=>{const h=String(Math.floor(s/3600)).padStart(2,'0'),m=String(Math.floor(s%3600/60)).padStart(2,'0'),x=String(s%60).padStart(2,'0');return `${h}:${m}:${x}`};
+  const words=t=>{t=t.trim();return t?t.split(/\s+/).length:0};
+  function autoGrow(){
+    answer.style.height='auto';
+    answer.style.height=Math.max(answer.scrollHeight,390)+'px';
+  }
+  const save=()=>{state.drafts[state.activePart]=answer.value;localStorage.setItem(STORAGE,JSON.stringify(state));saveStatus.textContent='Saved'};
+  const scheduleSave=()=>{saveStatus.textContent='Saving…';clearTimeout(scheduleSave.t);scheduleSave.t=setTimeout(save,220)};
+
+  function updateCompletion(part){
+    const isComplete=words(state.drafts[part]||'') >= thresholds[part];
+    state.completed[part]=isComplete;
+    return isComplete;
+  }
+
+  function escapeHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  // The print stylesheet hides the textarea and shows #printCopy instead
+  // (so the caret/scrollbar/focus ring never end up on a printed page), but
+  // nothing ever filled that element in — printing produced a blank page.
+  function updatePrintCopy(){
+    const raw=answer.value.replace(/\r\n/g,'\n');
+    const paragraphs=raw.split(/\n\s*\n/).filter(p=>p.trim());
+    printCopy.innerHTML=(paragraphs.length?paragraphs:['']).map(p=>
+      '<p>'+escapeHtml(p).split('\n').join('<br>')+'</p>'
+    ).join('');
+  }
+
+  function render(){
+    answer.value=state.drafts[state.activePart]||'';
+    taskPart.textContent=parts[state.activePart].label;
+    taskText.textContent=parts[state.activePart].instruction;
+    wordCount.textContent=words(answer.value);
+    autoGrow();
+    updatePrintCopy();
+    updateCompletion(1);
+    updateCompletion(2);
+    document.querySelectorAll('.bottom-tabs .tab').forEach(tab=>{
+      const p=+tab.dataset.part;
+      tab.classList.toggle('active',p===state.activePart);
+      tab.classList.toggle('completed',!!state.completed[p]);
+    });
+    checkBtn.classList.toggle('completed',!!state.completed[state.activePart]);
+  }
+
+  function updateTimer(){
+    let n=state.elapsed;
+    if(state.running && state.lastTick) n+=Math.floor((Date.now()-state.lastTick)/1000);
+    timerEl.textContent=fmt(n);
+    timerBtn.textContent=state.running?'Pause':'Start';
+    timerBtn.classList.toggle('active',state.running);
+  }
+
+  function applySize(){
+    document.body.classList.remove('size-large','size-xlarge');
+    if(state.size==='large') document.body.classList.add('size-large');
+    if(state.size==='xlarge') document.body.classList.add('size-xlarge');
+    document.querySelectorAll('[data-size]').forEach(x=>x.classList.toggle('selected',x.dataset.size===state.size));
+  }
+
+  function applyTheme(){
+    document.body.classList.remove('theme-whiteblack','theme-yellowblack');
+    if(state.theme==='whiteblack') document.body.classList.add('theme-whiteblack');
+    if(state.theme==='yellowblack') document.body.classList.add('theme-yellowblack');
+    document.querySelectorAll('[data-contrast]').forEach(x=>x.classList.toggle('selected',x.dataset.contrast===state.theme));
+  }
+
+  try{
+    const saved=JSON.parse(localStorage.getItem(STORAGE)||'null');
+    if(saved){
+      state={...state,...saved,
+        drafts:{...state.drafts,...(saved.drafts||{})},
+        completed:{...state.completed,...(saved.completed||{})},
+        exportScope:saved.exportScope==='both'?'both':'current'
+      };
+      if(state.running){
+        state.elapsed+=state.lastTick?Math.floor((Date.now()-state.lastTick)/1000):0;
+        state.lastTick=Date.now();
+      }
+    }
+  }catch(e){console.warn('Could not load saved IELTS data:',e)}
+
+  render(); applySize(); applyTheme(); updateTimer();
+  if(state.running){
+    clearInterval(timerInterval);
+    timerInterval=setInterval(updateTimer,1000);
+  }
+
+  // Autosave / crash protection
+  answer.addEventListener('input',()=>{
+    autoGrow();
+    wordCount.textContent=words(answer.value);
+    updateCompletion(state.activePart);
+    document.querySelector(`.bottom-tabs .tab[data-part="${state.activePart}"]`).classList.toggle('completed',state.completed[state.activePart]);
+    checkBtn.classList.toggle('completed',state.completed[state.activePart]);
+    updatePrintCopy();
+    scheduleSave();
+  });
+  answer.addEventListener('blur',save);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+  window.addEventListener('pagehide',save);
+  window.addEventListener('beforeunload',save);
+  window.addEventListener('beforeprint',updatePrintCopy);
+
+  // Stopwatch
+  timerBtn.addEventListener('click',()=>{
+    if(state.running){
+      state.elapsed+=state.lastTick?Math.floor((Date.now()-state.lastTick)/1000):0;
+      state.running=false; state.lastTick=null; clearInterval(timerInterval);
+    }else{
+      state.running=true; state.lastTick=Date.now(); clearInterval(timerInterval);
+      timerInterval=setInterval(updateTimer,1000);
+    }
+    updateTimer();save();
+  });
+
+  // Part tabs
+  document.querySelectorAll('.bottom-tabs .tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      save(); state.activePart=+tab.dataset.part; render(); save();
+    });
+  });
+
+  // Options navigation
+  const overlays={
+    optionsOverlay:document.getElementById('optionsOverlay'),
+    textsizeOverlay:document.getElementById('textsizeOverlay'),
+    contrastOverlay:document.getElementById('contrastOverlay')
+  };
+  const show=n=>{Object.values(overlays).forEach(x=>x.classList.remove('show'));overlays[n].classList.add('show')};
+  const close=()=>Object.values(overlays).forEach(x=>x.classList.remove('show'));
+  document.getElementById('optionsBtn').addEventListener('click',()=>show('optionsOverlay'));
+  document.querySelectorAll('[data-screen]').forEach(x=>x.addEventListener('click',()=>show(x.dataset.screen==='textsize'?'textsizeOverlay':'contrastOverlay')));
+  document.querySelectorAll('[data-back]').forEach(x=>x.addEventListener('click',()=>show(x.dataset.back)));
+  document.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click',close));
+  document.querySelectorAll('[data-size]').forEach(x=>x.addEventListener('click',()=>{state.size=x.dataset.size;applySize();save()}));
+  document.querySelectorAll('[data-contrast]').forEach(x=>x.addEventListener('click',()=>{state.theme=x.dataset.contrast;applyTheme();save()}));
+
+  // Reset the current TEST only. User preferences (contrast, text size, export settings) stay unchanged.
+  document.getElementById('resetOption').addEventListener('click',()=>{
+    const ok=confirm('Start a new test? This will clear both essays, the stopwatch, completion status, and other test data. Your display preferences will stay unchanged.');
+    if(!ok) return;
+
+    // Preserve user preferences before replacing the test state.
+    const preservedTheme=state.theme;
+    const preservedSize=state.size;
+    const preservedExportScope=state.exportScope;
+
+    // Fully clear the current test in-place. This avoids autosave restoring the old test.
+    clearInterval(timerInterval);
+    timerInterval=null;
+    clearTimeout(scheduleSave.t);
+
+    state={
+      activePart:1,
+      drafts:{1:'',2:''},
+      completed:{1:false,2:false},
+      elapsed:0,
+      running:false,
+      lastTick:null,
+      theme:preservedTheme,
+      size:preservedSize,
+      exportScope:preservedExportScope
+    };
+
+    localStorage.removeItem(STORAGE);
+    answer.value='';
+    exportMenu.classList.remove('open');
+    Object.values(overlays).forEach(x=>x.classList.remove('show'));
+    applySize();
+    applyTheme();
+    render();
+    updateTimer();
+    // Persist the fresh, empty test with the existing user preferences.
+    saveStatus.textContent='Ready';
+    localStorage.setItem(STORAGE,JSON.stringify(state));
+  });
+
+  // ---------- Export helpers ----------
+  const download=(blob,name)=>{const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)};
+  function sectionsForScope(scope=state.exportScope){
+    const partList=scope==='both'?[1,2]:[state.activePart];
+    return partList.map(p=>({part:p,text:(state.drafts[p]||'').trim()}));
+  }
+  const sections=()=>sectionsForScope(state.exportScope);
+
+  // Simple ZIP writer for DOCX, no external libraries.
+  const crcTable=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+  const crc32=b=>{let c=0xffffffff;for(let i=0;i<b.length;i++)c=crcTable[(c^b[i])&255]^(c>>>8);return(c^0xffffffff)>>>0};
+  const u16=n=>new Uint8Array([n&255,n>>>8&255]);
+  const u32=n=>new Uint8Array([n&255,n>>>8&255,n>>>16&255,n>>>24&255]);
+  const join=a=>{let n=a.reduce((x,y)=>x+y.length,0),r=new Uint8Array(n),o=0;a.forEach(x=>{r.set(x,o);o+=x.length});return r};
+  function zip(files){
+    const e=new TextEncoder(),locals=[],central=[];let off=0;
+    for(const f of files){
+      const name=e.encode(f.n),data=e.encode(f.d),c=crc32(data);
+      const local=join([u32(0x04034b50),u16(20),u16(0x800),u16(0),u16(0),u16(0),u32(c),u32(data.length),u32(data.length),u16(name.length),u16(0),name,data]);
+      locals.push(local);
+      central.push(join([u32(0x02014b50),u16(20),u16(20),u16(0x800),u16(0),u16(0),u16(0),u32(c),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(off),name]));
+      off+=local.length;
+    }
+    const ld=join(locals),cd=join(central);
+    return join([ld,cd,join([u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(cd.length),u32(ld.length),u16(0)])]);
+  }
+  const xmlEsc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+  function makeDocx(){
+    const body=[];
+    for(const sec of sections()){
+      body.push(`<w:p><w:pPr><w:spacing w:after="120"/></w:pPr><w:r><w:rPr><w:b/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="24"/></w:rPr><w:t>Part ${sec.part}</w:t></w:r></w:p>`);
+      const paras=sec.text?sec.text.replace(/\r\n/g,'\n').split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean):[''];
+      for(const p of paras){
+        const runs=p.split('\n').map((line,i)=>(i?' <w:br/>':'')+`<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="21"/></w:rPr><w:t xml:space="preserve">${xmlEsc(line)}</w:t></w:r>`).join('');
+        body.push(`<w:p><w:pPr><w:spacing w:after="180" w:line="276"/></w:pPr>${runs}</w:p>`);
+      }
+    }
+    const doc=`<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body.join('')}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/></w:sectPr></w:body></w:document>`;
+    const ct=`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`;
+    const rels=`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
+    return new Blob([zip([{n:'[Content_Types].xml',d:ct},{n:'_rels/.rels',d:rels},{n:'word/document.xml',d:doc}])],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  }
+
+  // Clean, real PDF generation. Text is wrapped by measured width (including very long unbroken strings),
+  // then paginated by vertical position so no content can run past the page edge.
+  function pdfSafe(s){
+    return s.replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/[–—]/g,'-').replace(/…/g,'...').replace(/[^\n\x20-\x7E]/g,'?');
+  }
+
+  const HELVETICA_WIDTHS={
+    ' ':278,'!':278,'"':355,'#':556,'$':556,'%':889,'&':667,"'":191,'(':333,')':333,'*':389,'+':584,',':278,'-':333,'.':278,'/':278,
+    '0':556,'1':556,'2':556,'3':556,'4':556,'5':556,'6':556,'7':556,'8':556,'9':556,':':278,';':278,'<':584,'=':584,'>':584,'?':556,'@':1015,
+    A:667,B:667,C:722,D:722,E:667,F:611,G:778,H:722,I:278,J:500,K:667,L:556,M:833,N:722,O:778,P:667,Q:778,R:722,S:667,T:611,U:722,V:667,W:944,X:667,Y:667,Z:611,
+    a:556,b:556,c:500,d:556,e:556,f:278,g:556,h:556,i:222,j:222,k:500,l:222,m:833,n:556,o:556,p:556,q:556,r:333,s:500,t:278,u:556,v:500,w:722,x:500,y:500,z:500
+  };
+  function textWidthPt(text,fontSize){
+    let units=0;
+    for(const ch of text) units += HELVETICA_WIDTHS[ch] ?? 556;
+    return units * fontSize / 1000;
+  }
+  function wrapPdfParagraph(text,maxWidth,fontSize){
+    const out=[];
+    const paragraphs=text.replace(/\r\n/g,'\n').split('\n');
+    for(const para of paragraphs){
+      if(para===''){out.push('');continue;}
+      const words=para.trim().split(/\s+/).filter(Boolean);
+      let line='';
+      for(let word of words){
+        // Split a single overlong token so it never crosses the page margin.
+        if(textWidthPt(word,fontSize)>maxWidth){
+          if(line){out.push(line);line='';}
+          let chunk='';
+          for(const ch of word){
+            const test=chunk+ch;
+            if(chunk && textWidthPt(test,fontSize)>maxWidth){out.push(chunk);chunk=ch;}
+            else chunk=test;
+          }
+          if(chunk) line=chunk;
+          continue;
+        }
+        const test=line?line+' '+word:word;
+        if(line && textWidthPt(test,fontSize)>maxWidth){out.push(line);line=word;}
+        else line=test;
+      }
+      if(line) out.push(line);
+    }
+    return out;
+  }
+
+  function makePdf(){
+    const pageW=612, pageH=792, marginX=54, marginTop=54, marginBottom=54;
+    const fontSize=10.5; // 14px-equivalent body text
+    const lineHeight=16.8;
+    const paragraphGap=10.5;
+    const headingGap=6;
+    const maxWidth=pageW-marginX*2;
+
+    // Each page collects {text,bold,y} items where y is that item's absolute
+    // baseline on the page. Pagination decisions and the rendered position
+    // both read from this single value, so they can't drift apart.
+    const pages=[];
+    let page=[];
+    let y=pageH-marginTop;
+    let pendingGap=0; // queued space before the next line; simply dropped if nothing follows
+
+    const newPage=()=>{pages.push(page);page=[];y=pageH-marginTop;pendingGap=0;};
+    const addLine=(text,bold=false)=>{
+      const need=lineHeight+pendingGap;
+      if(y-need<marginBottom){newPage();}
+      else{y-=pendingGap;}
+      pendingGap=0;
+      page.push({text,bold,y});
+      y-=lineHeight;
+    };
+    // Gaps are queued instead of applied immediately, so a page break never
+    // opens with a stray gap at the top, and a trailing gap after the last
+    // paragraph of the document is never realized at all.
+    const addGap=gap=>{pendingGap+=gap;};
+
+    for(const sec of sections()){
+      addLine(`Part ${sec.part}`,true);
+      addGap(paragraphGap);
+
+      // Split into paragraphs on the raw text BEFORE sanitizing: pdfSafe()
+      // strips newlines along with other control characters, so sanitizing
+      // first would erase every blank line and collapse the essay into one
+      // paragraph in the exported PDF.
+      const text=(sec.text||'').replace(/\r\n/g,'\n');
+      if(text.trim()){
+        const paragraphs=text.split(/\n\s*\n/);
+        paragraphs.forEach(para=>{
+          const lines=wrapPdfParagraph(pdfSafe(para),maxWidth,fontSize);
+          lines.forEach(line=>addLine(line,false));
+          addGap(paragraphGap);
+        });
+      }
+      addGap(headingGap);
+    }
+    if(page.length || pages.length===0) pages.push(page);
+
+    const objects=[];
+    const add=s=>{objects.push(s);return objects.length;};
+    const catalog=add('');
+    const pagesObj=add('');
+    const regularFont=add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+    const boldFont=add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');
+    const pageIds=[];
+
+    for(const items of pages){
+      let content='BT\n';
+      let penY=0, curFont=null, started=false;
+      for(const item of items){
+        const font=item.bold?'/F2':'/F1';
+        if(font!==curFont){content+=font+' '+fontSize.toFixed(1)+' Tf\n';curFont=font;}
+        const dx=started?0:marginX;
+        const dy=item.y-penY;
+        content+=`${dx} ${dy.toFixed(2)} Td\n`;
+        penY=item.y; started=true;
+        const safe=item.text.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+        content+=`(${safe}) Tj\n`;
+      }
+      content+='ET';
+      const stream=add(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+      pageIds.push(add(`<< /Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /Font << /F1 ${regularFont} 0 R /F2 ${boldFont} 0 R >> >> /Contents ${stream} 0 R >>`));
+    }
+
+    objects[catalog-1]=`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`;
+    objects[pagesObj-1]=`<< /Type /Pages /Kids [${pageIds.map(id=>id+' 0 R').join(' ')}] /Count ${pageIds.length} >>`;
+
+    let pdf='%PDF-1.4\n';
+    const offsets=[0];
+    objects.forEach((obj,i)=>{
+      offsets[i+1]=pdf.length;
+      pdf+=`${i+1} 0 obj\n${obj}\nendobj\n`;
+    });
+    const xref=pdf.length;
+    pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
+    for(let i=1;i<=objects.length;i++) pdf+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';
+    pdf+=`trailer\n<< /Size ${objects.length+1} /Root ${catalog} 0 R >>\nstartxref\n${xref}\n%%EOF`;
+    return new Blob([pdf],{type:'application/pdf'});
+  }
+
+  async function copySelected(){
+    const all=sections().map(sec=>`Part ${sec.part}\n\n${sec.text}`).join('\n\n');
+    try{await navigator.clipboard.writeText(all)}catch(e){const t=document.createElement('textarea');t.value=all;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}
+  }
+
+  // One check button is also the export menu trigger. Completing a written part turns its line green.
+  checkBtn.addEventListener('click',()=>{
+    updateCompletion(state.activePart);
+    save();
+    render();
+    exportMenu.classList.toggle('open');
+  });
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('.check-export')) exportMenu.classList.remove('open');
+  });
+  document.querySelectorAll('.scope-item').forEach(item=>item.addEventListener('click',()=>{
+    state.exportScope=item.dataset.scope==='both'?'both':'current';
+    document.querySelectorAll('.scope-item').forEach(x=>x.classList.toggle('selected',x.dataset.scope===state.exportScope));
+    save();
+  }));
+  document.querySelectorAll('.export-item[data-export]').forEach(item=>item.addEventListener('click',async()=>{
+    exportMenu.classList.remove('open');
+    const selected=sections();
+    if(!selected.some(s=>s.text)) return;
+    const suffix=state.exportScope==='both'?'both-parts':`part-${state.activePart}`;
+    if(item.dataset.export==='pdf') download(makePdf(),'ielts-writing-'+suffix+'.pdf');
+    if(item.dataset.export==='docx') download(makeDocx(),'ielts-writing-'+suffix+'.docx');
+    if(item.dataset.export==='copy') await copySelected();
+  }));
+  function updateExportScopeUI(){
+    document.querySelectorAll('.scope-item').forEach(x=>x.classList.toggle('selected',x.dataset.scope===state.exportScope));
+  }
+  updateExportScopeUI();
+})();
+</script>
+</body>
+</html>
